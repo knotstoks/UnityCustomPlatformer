@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public float fallMultiplier = 2.2f;
     public float lowJumpMultiplier = 2.0f;
     public float walkSpeed = 9.0f;
+    public float coyoteTime = 0.2f;
     public LayerMask platformMask;
 
     private Rigidbody2D rigidBody2D;
@@ -22,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     private float xAxis;
     private float yAxis;
     private bool isGrounded;
+    private float coyoteTimer;
 
     private void Awake()
     {
@@ -31,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         gravity = -2 * maximumJumpHeight / Mathf.Pow(timeToReachMaxHeight, 2);
         Physics2D.gravity = new Vector2(0, gravity);
         jumpSpeed = -gravity * timeToReachMaxHeight;
+        coyoteTimer = coyoteTime;
     }
 
     private void Update()
@@ -39,7 +42,18 @@ public class PlayerMovement : MonoBehaviour
         Walk(xAxis);
         Jump();
         GroundCheck();
-            
+        
+        if (!isGrounded)
+        {
+            if (coyoteTime > 0.0f)
+            {
+                coyoteTimer -= Time.deltaTime;
+            }
+        }
+        else
+        {
+            coyoteTimer = coyoteTime;
+        }
     }
 
     private void GetPlayerInputs()
@@ -50,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && (isGrounded || coyoteTimer > 0.0f))
         {
             rigidBody2D.velocity = Vector2.up * jumpSpeed;
         }
@@ -73,8 +87,8 @@ public class PlayerMovement : MonoBehaviour
     private void GroundCheck()
     {
         Bounds bounds = boxCollider2D.bounds;
-        RaycastHit2D hitLeft = Physics2D.Raycast(new Vector2(bounds.min.x, bounds.min.y), Vector2.down, 0.1f, platformMask);
-        RaycastHit2D hitRight = Physics2D.Raycast(new Vector2(bounds.max.x, bounds.min.y), Vector2.down, 0.1f, platformMask);
+        RaycastHit2D hitLeft = Physics2D.Raycast(new Vector2(bounds.min.x, bounds.min.y), Vector2.down, 0.02f, platformMask);
+        RaycastHit2D hitRight = Physics2D.Raycast(new Vector2(bounds.max.x, bounds.min.y), Vector2.down, 0.02f, platformMask);
 
         isGrounded = hitLeft || hitRight;
     }
