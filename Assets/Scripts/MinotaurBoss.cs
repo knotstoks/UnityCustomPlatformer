@@ -14,7 +14,13 @@ public class MinotaurBoss : MonoBehaviour
 
     private void Update()
     {
-        gameObject.transform.position = Vector2.MoveTowards(gameObject.transform.position, playerRef.transform.position, movementSpeed * Time.deltaTime);
+        // Chase if in range
+        if (Vector2.Distance(gameObject.transform.position, playerRef.transform.position) <= 2f)
+        {
+            gameObject.transform.position = Vector2.MoveTowards(gameObject.transform.position, playerRef.transform.position, movementSpeed * Time.deltaTime);
+        }
+        
+        // else Idle
     }
 
 }
